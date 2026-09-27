@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>امتحان الكهرباء الساكنة - الصف 12 متقدم | Electrostatics Exam</title>
+    <meta name="description" content="امتحان تفاعلي شامل عن القوة الكهروستاتيكية وقانون كولوم - فيزياء الصف 12 المتقدم">
+    <meta name="author" content="Mr. Mohammed Hesham">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+        body.en-mode { font-family: 'Inter', sans-serif; }
+        .correct { background-color: #dcfce7 !important; border-color: #16a34a !important; }
+        .incorrect { background-color: #fee2e2 !important; border-color: #dc2626 !important; }
+        .timer-warning { color: #dc2626 !important; animation: pulse 1s infinite; }
+        @keyframes pulse { 50% { opacity: 0.7; } }
+        @media print { .no-print { display: none !important; } }
+        .success-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 0.875rem; }
+        .grade-excellent { background: #dcfce7; color: #166534; }
+        .grade-good { background: #fef3c7; color: #92400e; }
+        .grade-pass { background: #dbeafe; color: #1e40af; }
+        .grade-fail { background: #fee2e2; color: #991b1b; }
+        .lang-switch {
+            position: fixed; top: 16px; left: 16px; z-index: 100;
+            background: white; padding: 6px; border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; gap: 4px;
+            border: 2px solid #dc2626;
+        }
+        [dir="ltr"] .lang-switch { left: auto; right: 16px; }
+        .lang-btn {
+            padding: 6px 14px; border-radius: 20px; cursor: pointer; font-weight: bold;
+            transition: all 0.3s; border: none; font-size: 0.875rem;
+            background: transparent; color: #6b7280;
+        }
+        .lang-btn.active { background: #dc2626; color: white; box-shadow: 0 2px 6px rgba(220,38,38,0.4); }
+        .lang-btn:hover:not(.active) { background: #fef2f2; color: #dc2626; }
+        .shuffle-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white; padding: 4px 12px; border-radius: 20px;
+            font-size: 0.75rem; font-weight: bold; margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+        .math-display {
+            display: inline-block; direction: ltr;
+            font-family: 'Times New Roman', 'Cambria Math', serif;
+            font-size: 1.15em; font-style: italic;
+            padding: 2px 8px; background: #fef2f2;
+            border-radius: 6px; margin: 2px;
+            color: #dc2626; font-weight: 600; letter-spacing: 0.5px;
+        }
+        .save-indicator {
+            position: fixed; bottom: 20px; left: 20px; z-index: 200;
+            background: #10b981; color: white; padding: 8px 16px;
+            border-radius: 20px; font-size: 0.8rem; font-weight: bold;
+            opacity: 0; transition: opacity 0.3s; pointer-events: none;
+            box-shadow: 0 4px 12px rgba(16,185,129,0.4);
+        }
+        .save-indicator.show { opacity: 1; }
+        .formula-box {
+            background: #fef2f2; border: 2px solid #f87171;
+            border-radius: 8px; padding: 12px; margin: 10px 0;
+            font-family: 'Times New Roman', serif;
+            direction: ltr; text-align: center;
+        }
+        .charge-diagram {
+            background: #fff7ed;
+            border: 2px solid #fb923c;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        .square-layout {
+            display: inline-grid;
+            grid-template-columns: 60px 60px;
+            grid-template-rows: 60px 60px;
+            gap: 40px;
+            margin: 10px auto;
+        }
+        .charge-point {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.85rem;
+            color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .positive { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .negative { background: linear-gradient(135deg, #3b82f6, #1e40af); }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-red-50 to-orange-50 text-gray-800 p-4 md:p-8 min-h-screen">
+
+    <div class="lang-switch no-print">
+        <button class="lang-btn active" onclick="setLanguage('ar')" id="btn-ar">عربي</button>
+        <button class="lang-btn" onclick="setLanguage('en')" id="btn-en">EN</button>
+    </div>
+
+    <div id="saveIndicator" class="save-indicator">💾 <span data-ar="تم الحفظ" data-en="Saved">تم الحفظ</span></div>
+
+    <div id="timer-container" class="max-w-4xl mx-auto mb-4 text-center no-print">
+        <div class="bg-white p-4 rounded-2xl shadow-md inline-block border-2 border-red-100">
+            <span class="text-gray-600 ml-2" data-ar="الوقت المتبقي:" data-en="Time Remaining:"> الوقت المتبقي:</span>
+            <span id="timer" class="text-2xl font-bold text-red-600 font-mono">60:00</span>
+            <span class="shuffle-badge" data-ar="🎲 أسئلة عشوائية" data-en="🎲 Random Questions"> أسئلة عشوائية</span>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto mb-6 flex flex-wrap gap-3 justify-center no-print">
+        <button onclick="toggleAnswers()" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-xl font-medium transition shadow cursor-pointer" data-ar="👀 إظهار / إخفاء الإجابات" data-en=" Show / Hide Answers">👀 إظهار / إخفاء الإجابات</button>
+        <button onclick="window.print()" class="bg-gray-700 hover:bg-gray-900 text-white px-5 py-2 rounded-xl font-medium transition shadow cursor-pointer" data-ar="🖨️ طباعة" data-en="🖨️ Print">🖨️ طباعة</button>
+        <button onclick="reshuffleExam()" class="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white px-5 py-2 rounded-xl font-medium transition shadow cursor-pointer" data-ar="🔄 أسئلة جديدة" data-en="🔄 New Questions"> أسئلة جديدة</button>
+        <button onclick="clearProgress()" class="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-xl font-medium transition shadow cursor-pointer" data-ar="🗑️ مسح التقدم" data-en="🗑️ Clear Progress">🗑️ مسح التقدم</button>
+    </div>
+
+    <header class="max-w-4xl mx-auto bg-white p-6 rounded-2xl shadow-lg mb-8 border-4 border-red-400">
+        <div class="text-center">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2" data-ar="⚡ الكهرباء الساكنة وقانون كولوم" data-en="⚡ Electrostatics & Coulomb's Law">⚡ الكهرباء الساكنة وقانون كولوم</h1>
+            <h2 class="text-lg text-red-600 font-semibold" data-ar="الصف الثاني عشر المتقدم (فيزياء)" data-en="Grade 12 Advanced (Physics)">الصف الثاني عشر المتقدم (فيزياء)</h2>
+            <p class="text-sm text-gray-600 mt-2" data-ar="قانون كولوم، مبدأ التراكب، تحليل القوى الكهروستاتيكية في بعدين" data-en="Coulomb's Law, Superposition Principle, 2D Electrostatic Force Analysis">قانون كولوم، مبدأ التراكب، تحليل القوى الكهروستاتيكية في بعدين</p>
+            <p class="text-xs text-green-600 mt-2 font-semibold" data-ar="💾 يتم حفظ تقدمك تلقائياً - 20 سؤالاً في 5 أقسام" data-en="💾 Your progress is saved automatically - 20 questions in 5 sections">💾 يتم حفظ تقدمك تلقائياً - 20 سؤالاً في 5 أقسام</p>
+        </div>
+        <div class="mt-4 flex flex-wrap justify-center gap-4 text-sm text-gray-600">
+            <span><span data-ar="📅 التاريخ:" data-en="📅 Date:">📅 التاريخ:</span> <input type="text" id="examDate" class="border-b-2 border-red-300 bg-transparent w-28 text-center"></span>
+            <span><span data-ar="😊 الاسم:" data-en="😊 Name:">😊 الاسم:</span> <input type="text" id="studentName" class="border-b-2 border-red-300 bg-transparent w-32 text-center" placeholder="اكتب اسمك"></span>
+            <span><span data-ar=" الشعبة:" data-en="🏫 Class:">🏫 الشعبة:</span> <input type="text" id="studentClass" class="border-b-2 border-red-300 bg-transparent w-28 text-center" placeholder="الشعبة"></span>
+            <span><span data-ar="⏰ المدة: 60 دقيقة" data-en=" Duration: 60 min">⏰ المدة: 60 دقيقة</span></span>
+            <span><span data-ar="📊 المجموع: 100 درجة" data-en="📊 Total: 100 pts"> المجموع: 100 درجة</span></span>
+        </div>
+    </header>
+
+    <div class="max-w-4xl mx-auto mb-6 bg-white p-4 rounded-xl shadow-md border-2 border-red-200 no-print">
+        <h3 class="font-bold text-lg mb-3 text-red-700 text-center" data-ar="⚡ الصيغ الأساسية" data-en="⚡ Key Formulae"> الصيغ الأساسية</h3>
+        <div class="grid md:grid-cols-2 gap-3 text-sm">
+            <div class="formula-box"><strong>Coulomb's Law:</strong> F = k|q₁q₂|/r²</div>
+            <div class="formula-box"><strong>k = 9 × 10⁹ N·m²/C²</strong></div>
+            <div class="formula-box"><strong>Superposition:</strong> F_net = ΣF_i</div>
+            <div class="formula-box"><strong>Components:</strong> Fx = F·cos(θ), Fy = F·sin(θ)</div>
+            <div class="formula-box"><strong>Magnitude:</strong> F = √(Fx² + Fy²)</div>
+            <div class="formula-box"><strong>Direction:</strong> θ = tan⁻¹(|Fy|/|Fx|)</div>
+        </div>
+    </div>
+
+    <main class="max-w-4xl mx-auto space-y-8" id="exam-content"></main>
+
+    <div class="text-center no-print pb-8 mt-8">
+        <button onclick="gradeExam()" class="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white text-lg px-10 py-4 rounded-2xl font-bold shadow-xl transition transform hover:scale-105 cursor-pointer" data-ar="🎯 صحح إجاباتي!" data-en="🎯 Grade My Answers!">🎯 صحح إجاباتي!</button>
+    </div>
+
+    <div id="results-panel" class="max-w-4xl mx-auto mt-8 bg-white p-8 rounded-2xl shadow-2xl border-4 border-red-400 hidden no-print">
+        <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center" data-ar="🏆 نتيجتك يا بطل! " data-en="🏆 Your Results, Champion! 🏆">🏆 نتيجتك يا بطل! 🏆</h2>
+        <div class="grid md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-red-50 p-4 rounded-xl text-center"><p data-ar="😊 الاسم" data-en="😊 Name">😊 الاسم</p><p id="res-name" class="font-bold text-xl text-red-700">-</p></div>
+            <div class="bg-orange-50 p-4 rounded-xl text-center"><p data-ar="📅 التاريخ" data-en="📅 Date">📅 التاريخ</p><p id="res-date" class="font-bold text-xl text-orange-700">-</p></div>
+            <div class="bg-red-50 p-4 rounded-xl text-center"><p data-ar="🌟 المجموع" data-en=" Score">🌟 المجموع</p><p id="res-total" class="font-bold text-3xl text-red-600">0 / 100</p></div>
+        </div>
+        <div class="text-center mb-6">
+            <span id="success-badge" class="success-badge grade-excellent">-</span>
+            <p id="success-percent" class="text-4xl font-bold text-red-600 mt-2">0%</p>
+            <p class="text-sm text-gray-500" data-ar="نسبة النجاح" data-en="Success Rate">نسبة النجاح</p>
+        </div>
+        <div class="bg-gray-50 p-6 rounded-xl mb-6">
+            <h3 class="font-bold text-lg mb-4 text-gray-800" data-ar="📊 أدائك في كل قسم:" data-en="📊 Your Performance:"> أدائك في كل قسم:</h3>
+            <div class="space-y-3" id="sections-performance"></div>
+        </div>
+        <div class="text-center mb-6">
+            <button id="sendEmailBtn" onclick="sendResultsToEmail()" class="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white text-lg px-8 py-3 rounded-2xl font-bold shadow-xl transition transform hover:scale-105 cursor-pointer" data-ar="📧 أرسل النتيجة للمعلم" data-en="📧 Send Results to Teacher">📧 أرسل النتيجة للمعلم</button>
+            <p id="emailStatus" class="text-sm mt-2 text-center font-medium"></p>
+        </div>
+        <div class="flex gap-3 justify-center">
+            <button onclick="window.print()" class="bg-gray-700 text-white px-6 py-3 rounded-xl font-semibold" data-ar="🖨️ طباعة النتيجة" data-en="🖨️ Print Results">️ طباعة النتيجة</button>
+        </div>
+    </div>
+
+    <footer class="max-w-4xl mx-auto mt-10 mb-8 text-center text-gray-500 text-sm no-print">
+        © <span data-ar="الكهرباء الساكنة - الصف 12 متقدم" data-en="Electrostatics - Grade 12 Advanced">الكهرباء الساكنة - الصف 12 متقدم</span> | Mr. Mohammed Hesham ⚡
+    </footer>
+
+<script>
+const PUBLIC_KEY = "Rb3Lq8tXaFmc5YHUH";
+const SERVICE_ID = "service_w15m64i";
+const TEMPLATE_ID = "template_5b0u2tq";
+const TARGET_EMAIL = "mohammedhesham872@gmail.com";
+emailjs.init(PUBLIC_KEY);
+
+const STORAGE_KEY = 'electrostatics_grade12_advanced_exam_v1';
+const TOTAL_TIME = 3600;
+const TOTAL_QUESTIONS = 20;
+const TOTAL_SECTIONS = 5;
+const QUESTIONS_PER_SECTION = 4;
+
+let currentSeed = null;
+let answersVisible = false;
+let saveIndicatorTimeout = null;
+
+function mulberry32(a) {
+    return function() {
+        var t = a += 0x6D2B79F5;
+        t = Math.imul(t ^ t >>> 15, t | 1);
+        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
+}
+let rng = null;
+
+function showSaveIndicator() {
+    const indicator = document.getElementById('saveIndicator');
+    indicator.classList.add('show');
+    if (saveIndicatorTimeout) clearTimeout(saveIndicatorTimeout);
+    saveIndicatorTimeout = setTimeout(() => indicator.classList.remove('show'), 1500);
+}
+
+function saveState(showIndicator = true) {
+    try {
+        const state = {
+            seed: currentSeed, lang: currentLang,
+            studentName: document.getElementById('studentName').value,
+            studentClass: document.getElementById('studentClass').value,
+            examDate: document.getElementById('examDate').value,
+            answers: getSelectedAnswers(),
+            timeRemaining: timeRemaining,
+            answersVisible: answersVisible, savedAt: Date.now()
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        if (showIndicator) showSaveIndicator();
+    } catch (e) { console.error('خطأ في الحفظ:', e); }
+}
+
+function loadState() {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) return JSON.parse(saved);
+    } catch (e) { console.error('خطأ في التحميل:', e); }
+    return null;
+}
+
+function getSelectedAnswers() {
+    const answers = {};
+    for (let i = 0; i < TOTAL_QUESTIONS; i++) {
+        const selected = document.querySelector(`input[name="q${i}"]:checked`);
+        if (selected) answers[i] = selected.value;
+    }
+    return answers;
+}
+
+function restoreAnswers(answers) {
+    if (!answers) return;
+    for (const [idx, val] of Object.entries(answers)) {
+        const radio = document.querySelector(`input[name="q${idx}"][value="${val}"]`);
+        if (radio) radio.checked = true;
+    }
+}
+
+function clearProgress() {
+    const confirmMsg = currentLang === 'ar' ? '⚠️ هل أنت متأكد من مسح كل التقدم؟' : '⚠️ Are you sure you want to clear all progress?';
+    if (confirm(confirmMsg)) { localStorage.removeItem(STORAGE_KEY); location.reload(); }
+}
+
+function setupAnswerListeners() {
+    document.getElementById('exam-content').addEventListener('change', (e) => {
+        if (e.target.type === 'radio') saveState();
+    });
+}
+
+function setupInputListeners() {
+    ['studentName', 'studentClass', 'examDate'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', () => saveState(false));
+            el.addEventListener('blur', () => saveState());
+        }
+    });
+}
+
+const originalExamData = {
+    sections: [
+        {
+            id: 'sec1',
+            title: { ar: '🔹 الجزء 1: قانون كولوم الأساسي', en: '🔹 Part 1: Coulomb\'s Law Basics' },
+            questions: [
+                {
+                    q: { ar: 'أربع أجسام مشحونة تقع عند زوايا مربع طول ضلعه <span class="math-display">1.25 m</span>. الشحنات: <span class="math-display">q₁ = 1.50 μC</span>، <span class="math-display">q₂ = 2.50 μC</span>، <span class="math-display">q₃ = -3.50 μC</span>، <span class="math-display">q₄ = 4.50 μC</span>. ما مقدار القوة بين <span class="math-display">q₁</span> و <span class="math-display">q₄</span>؟', en: 'Four charged objects at corners of a square (side = <span class="math-display">1.25 m</span>). Charges: <span class="math-display">q₁ = 1.50 μC</span>, <span class="math-display">q₂ = 2.50 μC</span>, <span class="math-display">q₃ = -3.50 μC</span>, <span class="math-display">q₄ = 4.50 μC</span>. Force between <span class="math-display">q₁</span> and <span class="math-display">q₄</span>?' },
+                    options: [
+                        { ar: '<span class="math-display">0.0389 N</span>', en: '<span class="math-display">0.0389 N</span>' },
+                        { ar: '<span class="math-display">0.0324 N</span>', en: '<span class="math-display">0.0324 N</span>' },
+                        { ar: '<span class="math-display">0.0907 N</span>', en: '<span class="math-display">0.0907 N</span>' },
+                        { ar: '<span class="math-display">0.0650 N</span>', en: '<span class="math-display">0.0650 N</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'F = k|q₁q₄|/r² = (9×10⁹)(1.50×10⁻⁶)(4.50×10⁻⁶)/(1.25)² = 0.0389 N', en: 'F = k|q₁q₄|/r² = (9×10⁹)(1.50×10⁻⁶)(4.50×10⁻⁶)/(1.25)² = 0.0389 N' }
+                },
+                {
+                    q: { ar: 'في نفس الترتيب، ما مقدار القوة بين <span class="math-display">q₂</span> و <span class="math-display">q₄</span> (القطر)؟', en: 'In the same arrangement, what is the force between <span class="math-display">q₂</span> and <span class="math-display">q₄</span> (diagonal)?' },
+                    options: [
+                        { ar: '<span class="math-display">0.0324 N</span>', en: '<span class="math-display">0.0324 N</span>' },
+                        { ar: '<span class="math-display">0.0389 N</span>', en: '<span class="math-display">0.0389 N</span>' },
+                        { ar: '<span class="math-display">0.0648 N</span>', en: '<span class="math-display">0.0648 N</span>' },
+                        { ar: '<span class="math-display">0.0162 N</span>', en: '<span class="math-display">0.0162 N</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'المسافة القطرية = √(1.25² + 1.25²). F = k|q₂q₄|/r² = 0.0324 N', en: 'Diagonal distance = √(1.25² + 1.25²). F = k|q₂q₄|/r² = 0.0324 N' }
+                },
+                {
+                    q: { ar: 'ما مقدار القوة بين <span class="math-display">q₃</span> و <span class="math-display">q₄</span>؟', en: 'What is the force between <span class="math-display">q₃</span> and <span class="math-display">q₄</span>?' },
+                    options: [
+                        { ar: '<span class="math-display">0.0907 N</span>', en: '<span class="math-display">0.0907 N</span>' },
+                        { ar: '<span class="math-display">0.0389 N</span>', en: '<span class="math-display">0.0389 N</span>' },
+                        { ar: '<span class="math-display">0.0324 N</span>', en: '<span class="math-display">0.0324 N</span>' },
+                        { ar: '<span class="math-display">0.0750 N</span>', en: '<span class="math-display">0.0750 N</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'F = k|q₃q|/r² = (9×10)(3.50×10⁻⁶)(4.50×10⁻⁶)/(1.25)² = 0.0907 N', en: 'F = k|q₃q₄|/r² = (9×10⁹)(3.50×10⁻⁶)(4.50×10⁻⁶)/(1.25)² = 0.0907 N' }
+                },
+                {
+                    q: { ar: 'ما ثابت كولوم <span class="math-display">k</span>؟', en: 'What is Coulomb\'s constant <span class="math-display">k</span>?' },
+                    options: [
+                        { ar: '<span class="math-display">9 × 10⁹ N·m²/C²</span>', en: '<span class="math-display">9 × 10⁹ N·m²/C²</span>' },
+                        { ar: '<span class="math-display">8.85 × 10⁻¹² C²/N·m²</span>', en: '<span class="math-display">8.85 × 10⁻¹² C²/N·m²</span>' },
+                        { ar: '<span class="math-display">6.67 × 10⁻¹¹ N·m²/kg²</span>', en: '<span class="math-display">6.67 × 10⁻¹¹ N·m²/kg²</span>' },
+                        { ar: '<span class="math-display">1.6 × 10⁻¹⁹ C</span>', en: '<span class="math-display">1.6 × 10⁻¹ C</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'ثابت كولوم k = 9 × 10⁹ N·m²/C²', en: 'Coulomb\'s constant k = 9 × 10⁹ N·m²/C²' }
+                }
+            ]
+        },
+        {
+            id: 'sec2',
+            title: { ar: '🔹 الجزء 2: اتجاه القوى (تجاذب وتنافر)', en: '🔹 Part 2: Force Directions (Attraction & Repulsion)' },
+            questions: [
+                {
+                    q: { ar: 'في المسألة السابقة، ما اتجاه القوة <span class="math-display">F₄₁</span> المؤثرة على <span class="math-display">q₄</span> من <span class="math-display">q₁</span>؟', en: 'In the previous problem, what is the direction of force <span class="math-display">F₄₁</span> on <span class="math-display">q₄</span> from <span class="math-display">q₁</span>?' },
+                    options: [
+                        { ar: 'إلى اليمين (المحور x الموجب) - تنافر', en: 'To the right (+x axis) - repulsion' },
+                        { ar: 'إلى اليسار (المحور x السالب) - تجاذب', en: 'To the left (-x axis) - attraction' },
+                        { ar: 'إلى الأعلى (المحور y الموجب)', en: 'Upward (+y axis)' },
+                        { ar: 'إلى الأسفل (المحور y السالب)', en: 'Downward (-y axis)' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'كلا الشحنتين موجبتان → تنافر. q₁ على يسار q₄ → تدفع q₄ لليمين', en: 'Both charges positive → repulsion. q₁ is left of q₄ → pushes q₄ to the right' }
+                },
+                {
+                    q: { ar: 'ما اتجاه القوة <span class="math-display">F₄₃</span> المؤثرة على <span class="math-display">q₄</span> من <span class="math-display">q₃</span>؟', en: 'What is the direction of force <span class="math-display">F₄₃</span> on <span class="math-display">q₄</span> from <span class="math-display">q₃</span>?' },
+                    options: [
+                        { ar: 'إلى الأسفل (المحور y السالب) - تجاذب', en: 'Downward (-y axis) - attraction' },
+                        { ar: 'إلى الأعلى (المحور y الموجب) - تنافر', en: 'Upward (+y axis) - repulsion' },
+                        { ar: 'إلى اليمين (المحور x الموجب)', en: 'To the right (+x axis)' },
+                        { ar: 'إلى اليسار (المحور x السالب)', en: 'To the left (-x axis)' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'q₄ موجبة و q₃ سالبة → تجاذب. q₃ أسفل q₄ → تسحب q₄ للأسفل', en: 'q₄ positive, q₃ negative → attraction. q₃ is below q₄ → pulls q downward' }
+                },
+                {
+                    q: { ar: 'ما اتجاه القوة <span class="math-display">F₄₂</span> المؤثرة على <span class="math-display">q₄</span> من <span class="math-display">q₂</span>؟', en: 'What is the direction of force <span class="math-display">F₄₂</span> on <span class="math-display">q₄</span> from <span class="math-display">q₂</span>?' },
+                    options: [
+                        { ar: 'أعلى اليمين بزاوية 45° - تنافر', en: 'Upper right at 45° - repulsion' },
+                        { ar: 'أسفل اليسار بزاوية 45° - تجاذب', en: 'Lower left at 45° - attraction' },
+                        { ar: 'أعلى اليسار بزاوية 45°', en: 'Upper left at 45°' },
+                        { ar: 'أسفل اليمين بزاوية 45°', en: 'Lower right at 45°' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'كلاهما موجب → تنافر. q₂ في الزاوية السفلية اليسرى → تدفع q₄ لأعلى اليمين بزاوية 45°', en: 'Both positive → repulsion. q₂ at bottom-left → pushes q₄ upper-right at 45°' }
+                },
+                {
+                    q: { ar: 'إذا كانت شحنتان متساويتان في المقدار ومتعاكستان في الإشارة، فإن القوة بينهما تكون:', en: 'If two charges are equal in magnitude but opposite in sign, the force between them is:' },
+                    options: [
+                        { ar: 'قوة تجاذب', en: 'Attractive force' },
+                        { ar: 'قوة تنافر', en: 'Repulsive force' },
+                        { ar: 'صفر', en: 'Zero' },
+                        { ar: 'تعتمد على المسافة فقط', en: 'Depends only on distance' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'الشحنات المتعاكسة تتجاذب دائماً', en: 'Opposite charges always attract each other' }
+                }
+            ]
+        },
+        {
+            id: 'sec3',
+            title: { ar: '🔹 الجزء 3: تحليل القوى إلى مركبات', en: ' Part 3: Force Components Analysis' },
+            questions: [
+                {
+                    q: { ar: 'القوة <span class="math-display">F₄₂ = 0.0324 N</span> بزاوية 45°. ما المركبة الأفقية <span class="math-display">F₄₂</span>؟', en: 'Force <span class="math-display">F₄₂ = 0.0324 N</span> at 45°. What is the horizontal component <span class="math-display">F₄₂ₓ</span>?' },
+                    options: [
+                        { ar: '<span class="math-display">0.0229 N</span>', en: '<span class="math-display">0.0229 N</span>' },
+                        { ar: '<span class="math-display">0.0324 N</span>', en: '<span class="math-display">0.0324 N</span>' },
+                        { ar: '<span class="math-display">0.0162 N</span>', en: '<span class="math-display">0.0162 N</span>' },
+                        { ar: '<span class="math-display">0.0458 N</span>', en: '<span class="math-display">0.0458 N</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'F₄₂ₓ = F₄₂ × cos(45°) = 0.0324 × 0.7071 ≈ 0.0229 N', en: 'F₄₂ₓ = F₄₂ × cos(45°) = 0.0324 × 0.7071 ≈ 0.0229 N' }
+                },
+                {
+                    q: { ar: 'ما المركبة الرأسية <span class="math-display">F₂ᵧ</span> لنفس القوة؟', en: 'What is the vertical component <span class="math-display">F₄₂</span> of the same force?' },
+                    options: [
+                        { ar: '<span class="math-display">0.0229 N</span>', en: '<span class="math-display">0.0229 N</span>' },
+                        { ar: '<span class="math-display">-0.0229 N</span>', en: '<span class="math-display">-0.0229 N</span>' },
+                        { ar: '<span class="math-display">0.0324 N</span>', en: '<span class="math-display">0.0324 N</span>' },
+                        { ar: '<span class="math-display">0.0458 N</span>', en: '<span class="math-display">0.0458 N</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'F₄₂ᵧ = F₄₂ × sin(45°) = 0.0324 × 0.7071 ≈ 0.0229 N', en: 'F₄₂ = F₄₂ × sin(45°) = 0.0324 × 0.7071 ≈ 0.0229 N' }
+                },
+                {
+                    q: { ar: 'إذا كانت <span class="math-display">F₄₁ = 0.0389 N</span> في اتجاه المحور x الموجب، فما مركباتها؟', en: 'If <span class="math-display">F₄₁ = 0.0389 N</span> is along +x axis, what are its components?' },
+                    options: [
+                        { ar: '<span class="math-display">F₄₁ₓ = 0.0389 N, F₄₁ᵧ = 0</span>', en: '<span class="math-display">F₄₁ₓ = 0.0389 N, F₄₁ᵧ = 0</span>' },
+                        { ar: '<span class="math-display">F₄₁ₓ = 0, F₄₁ᵧ = 0.0389 N</span>', en: '<span class="math-display">F₄₁ = 0, F₄₁ᵧ = 0.0389 N</span>' },
+                        { ar: '<span class="math-display">F₄₁ₓ = 0.0389 N, F₄₁ᵧ = 0.0389 N</span>', en: '<span class="math-display">F₄₁ₓ = 0.0389 N, F₄₁ᵧ = 0.0389 N</span>' },
+                        { ar: '<span class="math-display">F₄₁ₓ = -0.0389 N, F₄₁ᵧ = 0</span>', en: '<span class="math-display">F₄₁ₓ = -0.0389 N, F₄₁ = 0</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'القوة على المحور x فقط: F₄₁ₓ = 0.0389 N, F₄₁ = 0', en: 'Force is along x-axis only: F₄₁ₓ = 0.0389 N, F₄₁ᵧ = 0' }
+                },
+                {
+                    q: { ar: 'إذا كانت <span class="math-display">F₄₃ = 0.0907 N</span> في اتجاه المحور y السالب، فما مركباتها؟', en: 'If <span class="math-display">F₄₃ = 0.0907 N</span> is along -y axis, what are its components?' },
+                    options: [
+                        { ar: '<span class="math-display">F₄₃ₓ = 0, F₄₃ᵧ = -0.0907 N</span>', en: '<span class="math-display">F₄₃ₓ = 0, F₄₃ = -0.0907 N</span>' },
+                        { ar: '<span class="math-display">F₄₃ₓ = -0.0907 N, F₄ᵧ = 0</span>', en: '<span class="math-display">F₄₃ₓ = -0.0907 N, F₄₃ᵧ = 0</span>' },
+                        { ar: '<span class="math-display">F₄₃ₓ = 0, F₄₃ᵧ = 0.0907 N</span>', en: '<span class="math-display">F₄₃ₓ = 0, F₃ᵧ = 0.0907 N</span>' },
+                        { ar: '<span class="math-display">F₄₃ₓ = 0.0907 N, F₄₃ᵧ = 0</span>', en: '<span class="math-display">F₄₃ₓ = 0.0907 N, F₄ᵧ = 0</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'القوة على المحور y السالب فقط: F₄₃ₓ = 0, F₄₃ᵧ = -0.0907 N', en: 'Force is along -y axis only: F₄₃ₓ = 0, F₄₃ = -0.0907 N' }
+                }
+            ]
+        },
+        {
+            id: 'sec4',
+            title: { ar: '🔹 الجزء 4: مبدأ التراكب والقوة المحصلة', en: '🔹 Part 4: Superposition Principle & Net Force' },
+            questions: [
+                {
+                    q: { ar: 'ما هو مبدأ التراكب (Superposition Principle) في الكهرباء الساكنة؟', en: 'What is the Superposition Principle in electrostatics?' },
+                    options: [
+                        { ar: 'القوة المحصلة على شحنة هي المجموع المتجهي للقوى الفردية من جميع الشحنات الأخرى', en: 'The net force on a charge is the vector sum of individual forces from all other charges' },
+                        { ar: 'القوة المحصلة هي مجموع القيم العددية للقوى', en: 'The net force is the scalar sum of forces' },
+                        { ar: 'القوة المحصلة تساوي أكبر قوة فردية', en: 'The net force equals the largest individual force' },
+                        { ar: 'القوة المحصلة تساوي صفر دائماً', en: 'The net force is always zero' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'مبدأ التراكب: القوة المحصلة = المجموع المتجهي للقوى الفردية (مع مراعاة الاتجاه)', en: 'Superposition Principle: net force = vector sum of individual forces (considering direction)' }
+                },
+                {
+                    q: { ar: 'في المسألة، ما هو مجموع القوى في اتجاه x (<span class="math-display">Rₓ</span>)؟', en: 'In the problem, what is the sum of forces in x-direction (<span class="math-display">R</span>)?' },
+                    options: [
+                        { ar: '<span class="math-display">0.0618 N</span>', en: '<span class="math-display">0.0618 N</span>' },
+                        { ar: '<span class="math-display">0.0389 N</span>', en: '<span class="math-display">0.0389 N</span>' },
+                        { ar: '<span class="math-display">0.0229 N</span>', en: '<span class="math-display">0.0229 N</span>' },
+                        { ar: '<span class="math-display">0.0618 N</span> (سالب)', en: '<span class="math-display">-0.0618 N</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'Rₓ = F₄₁ + F₄₂ₓ = 0.0389 + 0.0229 = 0.0618 N', en: 'Rₓ = F₄₁ₓ + F₄₂ₓ = 0.0389 + 0.0229 = 0.0618 N' }
+                },
+                {
+                    q: { ar: 'ما هو مجموع القوى في اتجاه y (<span class="math-display">Rᵧ</span>)؟', en: 'What is the sum of forces in y-direction (<span class="math-display">Rᵧ</span>)?' },
+                    options: [
+                        { ar: '<span class="math-display">-0.0678 N</span>', en: '<span class="math-display">-0.0678 N</span>' },
+                        { ar: '<span class="math-display">0.0678 N</span>', en: '<span class="math-display">0.0678 N</span>' },
+                        { ar: '<span class="math-display">-0.0907 N</span>', en: '<span class="math-display">-0.0907 N</span>' },
+                        { ar: '<span class="math-display">0.0229 N</span>', en: '<span class="math-display">0.0229 N</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'R = F₄₂ᵧ - F₃ = 0.0229 - 0.0907 = -0.0678 N', en: 'Rᵧ = F₄₂ᵧ - F₄₃ = 0.0229 - 0.0907 = -0.0678 N' }
+                },
+                {
+                    q: { ar: 'ما مقدار القوة المحصلة النهائية على <span class="math-display">q₄</span>؟', en: 'What is the final net force magnitude on <span class="math-display">q₄</span>?' },
+                    options: [
+                        { ar: '<span class="math-display">0.0917 N</span>', en: '<span class="math-display">0.0917 N</span>' },
+                        { ar: '<span class="math-display">0.0618 N</span>', en: '<span class="math-display">0.0618 N</span>' },
+                        { ar: '<span class="math-display">0.0678 N</span>', en: '<span class="math-display">0.0678 N</span>' },
+                        { ar: '<span class="math-display">0.1624 N</span>', en: '<span class="math-display">0.1624 N</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'F_net = √(Rₓ² + Rᵧ²) = √(0.0618² + 0.0678²) ≈ 0.0917 N', en: 'F_net = √(R² + Rᵧ²) = √(0.0618² + 0.0678²) ≈ 0.0917 N' }
+                }
+            ]
+        },
+        {
+            id: 'sec5',
+            title: { ar: '🔹 الجزء 5: اتجاه القوة المحصلة وتطبيقات', en: '🔹 Part 5: Net Force Direction & Applications' },
+            questions: [
+                {
+                    q: { ar: 'ما زاوية القوة المحصلة مع المحور الأفقي؟', en: 'What is the angle of the net force with the horizontal axis?' },
+                    options: [
+                        { ar: '<span class="math-display">47.6°</span> أسفل المحور الأفقي (الربع الرابع)', en: '<span class="math-display">47.6°</span> below horizontal (4th quadrant)' },
+                        { ar: '<span class="math-display">47.6°</span> أعلى المحور الأفقي (الربع الأول)', en: '<span class="math-display">47.6°</span> above horizontal (1st quadrant)' },
+                        { ar: '<span class="math-display">42.4°</span> أسفل المحور الأفقي', en: '<span class="math-display">42.4°</span> below horizontal' },
+                        { ar: '<span class="math-display">90°</span> (عمودي)', en: '<span class="math-display">90°</span> (vertical)' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'θ = tan⁻¹(|Rᵧ|/|Rₓ|) = tan⁻¹(0.0678/0.0618) ≈ 47.6°. Rₓ موجب و Rᵧ سالب → الربع الرابع', en: 'θ = tan⁻¹(|R|/|Rₓ|) = tan¹(0.0678/0.0618) ≈ 47.6°. Rₓ positive, Rᵧ negative → 4th quadrant' }
+                },
+                {
+                    q: { ar: 'إذا تضاعفت المسافة بين شحنتين، كيف تتغير القوة الكهروستاتيكية بينهما؟', en: 'If the distance between two charges is doubled, how does the electrostatic force change?' },
+                    options: [
+                        { ar: 'تقل إلى الربع (1/4)', en: 'Decreases to one-quarter (1/4)' },
+                        { ar: 'تتضاعف', en: 'Doubles' },
+                        { ar: 'تقل إلى النصف', en: 'Halves' },
+                        { ar: 'تزيد 4 أضعاف', en: 'Increases 4 times' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'F ∝ 1/r². عند مضاعفة r: F\' = F/(2)² = F/4', en: 'F ∝ 1/r². When r doubles: F\' = F/(2)² = F/4' }
+                },
+                {
+                    q: { ar: 'شحنتان <span class="math-display">q₁ = +2 μC</span> و <span class="math-display">q₂ = +3 μC</span> بينهما مسافة <span class="math-display">0.1 m</span>. ما القوة بينهما؟', en: 'Two charges <span class="math-display">q₁ = +2 μC</span> and <span class="math-display">q₂ = +3 μC</span> separated by <span class="math-display">0.1 m</span>. Force between them?' },
+                    options: [
+                        { ar: '<span class="math-display">5.4 N</span>', en: '<span class="math-display">5.4 N</span>' },
+                        { ar: '<span class="math-display">54 N</span>', en: '<span class="math-display">54 N</span>' },
+                        { ar: '<span class="math-display">0.54 N</span>', en: '<span class="math-display">0.54 N</span>' },
+                        { ar: '<span class="math-display">540 N</span>', en: '<span class="math-display">540 N</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'F = k|q₁q₂|/r² = (9×10⁹)(2×10⁻⁶)(3×10⁻⁶)/(0.1)² = 5.4 N', en: 'F = k|q₁q₂|/r² = (9×10⁹)(2×10⁻⁶)(3×10⁻⁶)/(0.1)² = 5.4 N' }
+                },
+                {
+                    q: { ar: 'ثلاث شحنات متساوية <span class="math-display">+q</span> على خط مستقيم. الشحنة الوسطى تتأثر بقوتين. ما محصلة القوى عليها؟', en: 'Three equal charges <span class="math-display">+q</span> on a straight line. Middle charge experiences two forces. Net force on it?' },
+                    options: [
+                        { ar: 'صفر (إذا كانت المسافات متساوية)', en: 'Zero (if distances are equal)' },
+                        { ar: '2F في اتجاه اليمين', en: '2F to the right' },
+                        { ar: 'F في اتجاه اليسار', en: 'F to the left' },
+                        { ar: 'تعتمد على مقدار الشحنة فقط', en: 'Depends only on charge magnitude' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'إذا كانت الشحنات الخارجية متساوية والمسافات متساوية، القوتان متساويتان ومتعاكستان → المحصلة = 0', en: 'If outer charges are equal and distances equal, forces are equal and opposite → net force = 0' }
+                }
+            ]
+        }
+    ]
+};
+
+function shuffleArray(array) {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+
+let examData;
+let correctAnswersMap = {};
+let currentLang = 'ar';
+let timeRemaining = TOTAL_TIME;
+let timerInterval;
+
+function prepareShuffledExam() {
+    rng = mulberry32(currentSeed);
+    examData = JSON.parse(JSON.stringify(originalExamData));
+    correctAnswersMap = {};
+    let globalIdx = 0;
+    examData.sections.forEach((section) => {
+        section.questions = shuffleArray(section.questions);
+        section.questions.forEach((q) => {
+            const optionsWithCorrect = q.options.map((opt, idx) => ({ option: opt, isCorrect: idx === q.correct }));
+            const shuffledOptions = shuffleArray(optionsWithCorrect);
+            q.options = shuffledOptions.map(o => o.option);
+            q.correct = shuffledOptions.findIndex(o => o.isCorrect);
+            correctAnswersMap[globalIdx] = String.fromCharCode(97 + q.correct);
+            globalIdx++;
+        });
+    });
+}
+
+function reshuffleExam() {
+    const msg = currentLang === 'ar' ? '🔄 سيتم إنشاء أسئلة جديدة ومسح إجاباتك الحالية. هل أنت متأكد؟' : ' New questions will be generated and current answers cleared. Are you sure?';
+    if (confirm(msg)) {
+        currentSeed = Date.now(); timeRemaining = TOTAL_TIME; answersVisible = false;
+        prepareShuffledExam(); renderExam(); saveState();
+        alert(currentLang === 'ar' ? '🎲 تم تغيير الأسئلة! حظاً موفقاً! 🍀' : '🎲 Questions changed! Good luck! 🍀');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+function setLanguage(lang) {
+    currentLang = lang;
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.getElementById('btn-ar').classList.toggle('active', lang === 'ar');
+    document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+    document.body.classList.toggle('en-mode', lang === 'en');
+    document.querySelectorAll('[data-ar][data-en]').forEach(el => {
+        el.innerHTML = lang === 'ar' ? el.getAttribute('data-ar') : el.getAttribute('data-en');
+    });
+    renderExam(); saveState(false);
+}
+
+function renderExam() {
+    const container = document.getElementById('exam-content');
+    const labels = { ar: { option: ['أ', 'ب', 'ج', 'د'], answer: '✅ الإجابة:' }, en: { option: ['A', 'B', 'C', 'D'], answer: '✅ Answer:' } };
+    const lbl = labels[currentLang]; const isRTL = currentLang === 'ar';
+    let html = ''; let globalIdx = 0;
+    examData.sections.forEach((section) => {
+        html += `<section class="bg-white p-6 rounded-2xl shadow-lg border-2 border-red-100">
+            <h2 class="text-xl font-bold mb-4 text-red-700">${section.title[currentLang]}</h2>
+            <ol class="space-y-4 text-sm">`;
+        section.questions.forEach((q) => {
+            const bs = isRTL ? 'border-r-4 pr-4' : 'border-l-4 pl-4';
+            html += `<li class="${bs} border-red-400 py-2" id="q-${globalIdx}">
+                <strong>${globalIdx + 1}.</strong> ${q.q[currentLang]}<br>`;
+            q.options.forEach((opt, oIdx) => {
+                const rs = isRTL ? 'mr-4 ml-2' : 'ml-4 mr-2';
+                html += `<label class="cursor-pointer block mt-1 ${isRTL ? 'mr-4' : 'ml-4'} hover:bg-red-50 rounded-lg p-1 transition">
+                    <input type="radio" name="q${globalIdx}" value="${String.fromCharCode(97 + oIdx)}" class="${rs}">
+                    ${lbl.option[oIdx]}) ${opt[currentLang]}</label>`;
+            });
+            html += `<div class="answer-box text-green-700 mt-2 font-medium ${answersVisible ? '' : 'hidden'} bg-green-50 rounded-lg p-2">
+                ${lbl.answer} ${lbl.option[q.correct]}) ${q.options[q.correct][currentLang]} — ${q.answer[currentLang]}</div></li>`;
+            globalIdx++;
+        });
+        html += `</ol></section>`;
+    });
+    container.innerHTML = html;
+}
+
+function startTimer() {
+    updateTimerDisplay();
+    timerInterval = setInterval(() => {
+        timeRemaining--; updateTimerDisplay();
+        if (timeRemaining % 60 === 0) saveState(false);
+        if (timeRemaining <= 600) document.getElementById('timer').classList.add('timer-warning');
+        if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            alert(currentLang === 'ar' ? "⏰ انتهى الوقت!" : "⏰ Time's up!");
+            gradeExam();
+        }
+    }, 1000);
+}
+
+function updateTimerDisplay() {
+    const m = Math.floor(timeRemaining / 60); const s = timeRemaining % 60;
+    document.getElementById('timer').textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+}
+
+function toggleAnswers() {
+    answersVisible = !answersVisible;
+    document.querySelectorAll('.answer-box').forEach(el => el.classList.toggle('hidden', !answersVisible));
+    saveState(false);
+}
+
+function gradeExam() {
+    let correctCount = 0;
+    const sectionScores = new Array(TOTAL_SECTIONS).fill(0);
+    for (let i = 0; i < TOTAL_QUESTIONS; i++) {
+        const sel = document.querySelector(`input[name="q${i}"]:checked`);
+        const li = document.getElementById(`q-${i}`);
+        if (li) {
+            const isCorrect = sel && sel.value === correctAnswersMap[i];
+            if (isCorrect) { correctCount++; li.classList.add('correct'); li.classList.remove('incorrect'); sectionScores[Math.floor(i / QUESTIONS_PER_SECTION)]++; }
+            else { li.classList.add('incorrect'); li.classList.remove('correct'); }
+        }
+    }
+    const score = Math.round((correctCount / TOTAL_QUESTIONS) * 100);
+    document.getElementById('res-total').textContent = `${score} / 100`;
+    document.getElementById('res-name').textContent = document.getElementById('studentName').value || (currentLang === 'ar' ? 'بطل' : 'Champion');
+    document.getElementById('res-date').textContent = new Date().toLocaleDateString(currentLang === 'ar' ? 'ar-AE' : 'en-US');
+    const pc = document.getElementById('sections-performance'); pc.innerHTML = '';
+    examData.sections.forEach((s, idx) => {
+        pc.innerHTML += `<div class="flex justify-between items-center"><span class="text-gray-700">${s.title[currentLang]}</span><span class="font-bold text-red-700">${sectionScores[idx]}/${QUESTIONS_PER_SECTION}</span></div>`;
+    });
+    const badge = document.getElementById('success-badge');
+    document.getElementById('success-percent').textContent = `${score}%`;
+    if (currentLang === 'ar') {
+        if (score >= 90) { badge.textContent = '🌟 ممتاز جداً!'; badge.className = 'success-badge grade-excellent'; }
+        else if (score >= 75) { badge.textContent = '👏 ممتاز!'; badge.className = 'success-badge grade-good'; }
+        else if (score >= 50) { badge.textContent = '👍 جيد'; badge.className = 'success-badge grade-pass'; }
+        else { badge.textContent = '💪 حاول مرة أخرى'; badge.className = 'success-badge grade-fail'; }
+    } else {
+        if (score >= 90) { badge.textContent = '🌟 Outstanding!'; badge.className = 'success-badge grade-excellent'; }
+        else if (score >= 75) { badge.textContent = '👏 Excellent!'; badge.className = 'success-badge grade-good'; }
+        else if (score >= 50) { badge.textContent = '👍 Good'; badge.className = 'success-badge grade-pass'; }
+        else { badge.textContent = '💪 Try Again'; badge.className = 'success-badge grade-fail'; }
+    }
+    document.getElementById('results-panel').classList.remove('hidden');
+    document.getElementById('results-panel').scrollIntoView({ behavior: 'smooth' });
+    if (timerInterval) clearInterval(timerInterval);
+}
+
+function sendResultsToEmail() {
+    const btn = document.getElementById('sendEmailBtn');
+    const status = document.getElementById('emailStatus');
+    btn.disabled = true;
+    btn.textContent = currentLang === 'ar' ? '⏳ جاري الإرسال...' : '⏳ Sending...';
+    const name = document.getElementById('studentName').value || 'N/A';
+    const studentClass = document.getElementById('studentClass').value || 'N/A';
+    const date = document.getElementById('examDate').value || new Date().toLocaleDateString();
+    const score = document.getElementById('res-total').textContent;
+    const successRate = document.getElementById('success-percent').textContent;
+    const badge = document.getElementById('success-badge').textContent;
+    let questionsHTML = ''; let globalIdx = 0;
+    examData.sections.forEach((section, sectionIdx) => {
+        questionsHTML += `<tr style="background:linear-gradient(135deg,#dc2626,#ef4444);color:white;"><td colspan="5" style="padding:12px;font-weight:bold;">📌 ${currentLang==='ar'?'القسم':'Section'} ${sectionIdx+1}: ${section.title[currentLang]}</td></tr>`;
+        section.questions.forEach((q) => {
+            const sel = document.querySelector(`input[name="q${globalIdx}"]:checked`);
+            const sv = sel ? sel.value : null; const cv = correctAnswersMap[globalIdx]; const ic = sv === cv;
+            let sat = currentLang==='ar'?'❌ لم يجب':'❌ No answer'; let sac = '#dc2626';
+            if (sv) { const si = sv.charCodeAt(0)-97; sat = q.options[si][currentLang]; sac = ic?'#059669':'#dc2626'; }
+            const cat = q.options[q.correct][currentLang];
+            const rb = ic?'#f0fdf4':'#fef2f2'; const bl = ic?'4px solid #10b981':'4px solid #ef4444';
+            questionsHTML += `<tr style="background:${rb};border-right:${bl};"><td style="padding:10px;border:1px solid #e5e7eb;text-align:center;font-weight:bold;">${globalIdx+1}</td><td style="padding:10px;border:1px solid #e5e7eb;"><strong style="color:#dc2626;">${currentLang==='ar'?' السؤال:':'❓ Question:'}</strong><br><span style="font-size:13px;">${q.q[currentLang]}</span></td><td style="padding:10px;border:1px solid #e5e7eb;"><strong style="color:${sac};">${currentLang==='ar'?'✍️ إجابة الطالب:':'✍️ Student:'}</strong><br><span style="color:${sac};font-size:13px;">${sat}</span></td><td style="padding:10px;border:1px solid #e5e7eb;"><strong style="color:#059669;">${currentLang==='ar'?'✅ الصحيحة:':'✅ Correct:'}</strong><br><span style="color:#059669;font-size:13px;">${cat}</span></td><td style="padding:10px;border:1px solid #e5e7eb;text-align:center;">${ic?'<span style="font-size:24px;">✅</span>':'<span style="font-size:24px;">❌</span>'}</td></tr>`;
+            globalIdx++;
+        });
+    });
+    const answersHTML = `<div style="font-family:'Segoe UI',Tahoma,Arial;direction:${currentLang==='ar'?'rtl':'ltr'};"><div style="background:linear-gradient(135deg,#dc2626,#ef4444);color:white;padding:20px;border-radius:10px 10px 0 0;text-align:center;"><h2 style="margin:0;">${currentLang==='ar'?'نتيجة امتحان الكهرباء الساكنة':'Electrostatics Exam Result'}</h2><p style="margin:5px 0 0;opacity:0.9;">Grade 12 Advanced - Physics</p></div><div style="background:#fef2f2;padding:15px;"><table style="width:100%;border-collapse:collapse;"><tr><td style="padding:8px;font-weight:bold;color:#dc2626;">${currentLang==='ar'?'😊 الاسم:':'😊 Name:'}</td><td style="padding:8px;">${name}</td><td style="padding:8px;font-weight:bold;color:#dc2626;">${currentLang==='ar'?'🏫 الشعبة:':'🏫 Class:'}</td><td style="padding:8px;">${studentClass}</td></tr><tr><td style="padding:8px;font-weight:bold;color:#dc2626;">${currentLang==='ar'?' التاريخ:':'📅 Date:'}</td><td style="padding:8px;">${date}</td><td style="padding:8px;font-weight:bold;color:#dc2626;">${currentLang==='ar'?'🏆 التقدير:':' Grade:'}</td><td style="padding:8px;">${badge}</td></tr></table></div><div style="background:white;padding:20px;text-align:center;"><div style="display:inline-block;margin:0 15px;"><div style="font-size:32px;font-weight:bold;color:#dc2626;">${score}</div><div style="color:#6b7280;font-size:13px;">${currentLang==='ar'?'الدرجة':'Score'}</div></div><div style="display:inline-block;margin:0 15px;"><div style="font-size:32px;font-weight:bold;color:#059669;">${successRate}%</div><div style="color:#6b7280;font-size:13px;">${currentLang==='ar'?'النسبة':'Rate'}</div></div></div><table style="width:100%;border-collapse:collapse;font-size:13px;"><thead><tr style="background:#dc2626;color:white;"><th style="padding:10px;border:1px solid #ef4444;">#</th><th style="padding:10px;border:1px solid #ef4444;">${currentLang==='ar'?'السؤال':'Question'}</th><th style="padding:10px;border:1px solid #ef4444;">${currentLang==='ar'?'إجابة الطالب':'Student'}</th><th style="padding:10px;border:1px solid #ef4444;">${currentLang==='ar'?'الصحيحة':'Correct'}</th><th style="padding:10px;border:1px solid #ef4444;">${currentLang==='ar'?'النتيجة':'Result'}</th></tr></thead><tbody>${questionsHTML}</tbody></table><div style="background:linear-gradient(135deg,#fef2f2,#fee2e2);padding:15px;border-radius:0 0 10px 10px;"><p style="margin:0;color:#dc2626;text-align:center;">⚡ <strong>${currentLang==='ar'?'أحسنت يا بطل! استمر في إتقان الفيزياء!':'Great job! Keep mastering Physics!'}</strong> ⚡</p><p style="margin:5px 0 0;color:#dc2626;text-align:center;font-size:12px;">${currentLang==='ar'?'تم الإرسال تلقائياً | Mr. Mohammed Hesham':'Auto-sent | Mr. Mohammed Hesham'}</p></div></div>`;
+    emailjs.send(SERVICE_ID, TEMPLATE_ID, { to_email: TARGET_EMAIL, student_name: name, student_class: studentClass, exam_date: date, total_score: score, success_rate: successRate, grade: badge, answers_table: answersHTML }).then(() => {
+        status.textContent = currentLang==='ar'?'✅ تم الإرسال بنجاح!':'✅ Sent successfully!'; status.style.color = '#059669'; btn.textContent = currentLang==='ar'?'✓ تم':'✓ Sent';
+    }).catch(err => {
+        status.textContent = currentLang==='ar'?'❌ حدث خطأ':'❌ Error'; status.style.color = '#dc2626'; btn.disabled = false; btn.textContent = currentLang==='ar'?'📧 حاول مرة أخرى':'📧 Try Again'; console.error(err);
+    });
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    const saved = loadState();
+    if (saved && saved.seed) {
+        currentSeed = saved.seed; currentLang = saved.lang || 'ar';
+        timeRemaining = saved.timeRemaining !== undefined ? saved.timeRemaining : TOTAL_TIME;
+        answersVisible = saved.answersVisible || false;
+        document.documentElement.lang = currentLang;
+        document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+        document.getElementById('btn-ar').classList.toggle('active', currentLang === 'ar');
+        document.getElementById('btn-en').classList.toggle('active', currentLang === 'en');
+        document.body.classList.toggle('en-mode', currentLang === 'en');
+        document.querySelectorAll('[data-ar][data-en]').forEach(el => { el.innerHTML = currentLang === 'ar' ? el.getAttribute('data-ar') : el.getAttribute('data-en'); });
+    } else { currentSeed = Date.now(); }
+    prepareShuffledExam(); renderExam();
+    if (saved) {
+        if (saved.studentName) document.getElementById('studentName').value = saved.studentName;
+        if (saved.studentClass) document.getElementById('studentClass').value = saved.studentClass;
+        if (saved.examDate) document.getElementById('examDate').value = saved.examDate;
+        if (saved.answers) restoreAnswers(saved.answers);
+    }
+    setupAnswerListeners(); setupInputListeners(); startTimer();
+});
+window.addEventListener('beforeunload', () => saveState(false));
+</script>
+</body>
+</html>
